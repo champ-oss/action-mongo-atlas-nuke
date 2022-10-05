@@ -10,7 +10,7 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: install jira lib
+    - name: install mongo atlas requirements
       shell: bash
       run: pip3 install -r requirements.txt
     - name: run mongo nuke action
