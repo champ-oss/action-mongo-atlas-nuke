@@ -16,7 +16,7 @@ runs:
         python-version: '3.10'
     - name: install mongo atlas requirements
       shell: bash
-      run: pip3 install -r requirements.txt
+      run: pip3 install requests retry
     - name: run mongo nuke action
       shell: bash
       env:
