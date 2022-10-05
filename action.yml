@@ -1,0 +1,22 @@
+name: action-mongo-atlas-nuke
+description: https://github.com/champ-oss/action-mongo-atlas-nuke
+inputs:
+  MONGODB_ATLAS_PRIVATE_KEY:
+    description: 'mongo atlas private key'
+    required: true
+  MONGODB_ATLAS_PUBLIC_KEY:
+    description: 'mongo atlas public key'
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: install jira lib
+      shell: bash
+      run: pip3 install -r requirements.txt
+    - name: run mongo nuke action
+      shell: bash
+      env:
+        MONGODB_ATLAS_PRIVATE_KEY: ${{ inputs.MONGODB_ATLAS_PRIVATE_KEY }}
+        MONGODB_ATLAS_PUBLIC_KEY: ${{ inputs.MONGODB_ATLAS_PUBLIC_KEY }}
+      run: |
+        python ${GITHUB_ACTION_PATH}/action-mongo-atlas-nuke.py
