@@ -1,0 +1,19 @@
+name: action-mongo-atlas-nuke
+
+on:
+  schedule:
+    - cron: "0 7 * * *"
+  workflow_dispatch:
+
+concurrency: this
+
+jobs:
+  mongo-nuke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: action-mongo-atlas-nuke
+        uses: champ-oss/action-mongo-atlas-nuke@1.0.0
+        with:
+          MONGODB_ATLAS_PRIVATE_KEY: ${{ secrets.MONGODB_ATLAS_PRIVATE_KEY }}
+          MONGODB_ATLAS_PUBLIC_KEY: ${{ secrets.MONGODB_ATLAS_PUBLIC_KEY }}
+
