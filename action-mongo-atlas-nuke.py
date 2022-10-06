@@ -15,10 +15,7 @@ def get_all_projects(public: str, private: str, url: str) -> List[str]:
     project_url = url + "/groups"
     response = requests.request("GET", project_url, auth=HTTPDigestAuth(public, private))
     project_list = json.loads(response.content)
-    id_list = []
-    for p in project_list['results']:
-        id_list.append(p['id'])
-    return id_list
+    return [p['id'] for p in project_list['results']]
 
 
 def get_cluster_name(public: str, private: str, url: str, project_id: str) -> str:
