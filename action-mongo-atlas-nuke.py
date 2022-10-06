@@ -35,7 +35,7 @@ def delete_cluster(public: str, private: str, url: str, project_id: str, cluster
     print(response)
 
 
-@retry(delay=60, tries=5)
+@retry(delay=15, tries=40)
 def delete_project(public: str, private: str, url: str, project_id: str) -> None:
     try:
         project_delete_url = url + "/groups/" + project_id
