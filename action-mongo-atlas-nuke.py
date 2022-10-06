@@ -25,9 +25,8 @@ def get_cluster_name(public: str, private: str, url: str, project_id: str) -> st
     cluster_url = url + "/groups/" + project_id + "/clusters"
     response = requests.request("GET", cluster_url, auth=HTTPDigestAuth(public, private))
     cluster_list = json.loads(response.content)
-    for c in cluster_list['results']:
-        cluster_name = c['name']
-        return cluster_name
+    for cluster in cluster_list['results']:
+        return cluster['name']
 
 
 def delete_cluster(public: str, private: str, url: str, project_id: str, cluster_name: str) -> None:
@@ -38,7 +37,6 @@ def delete_cluster(public: str, private: str, url: str, project_id: str, cluster
 
 @retry(delay=60, tries=5)
 def delete_project(public: str, private: str, url: str, project_id: str) -> None:
-    status = None
     try:
         project_delete_url = url + "/groups/" + project_id
         response = requests.request("DELETE", project_delete_url, auth=HTTPDigestAuth(public, private))

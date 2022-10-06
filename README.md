@@ -1,6 +1,6 @@
 # action-mongo-atlas-nuke
 
-Summary: This github action is used to delete Mongo Atlas cluster and project resources on a daily basis.  Good use case for ephemeral org
+Summary: This github action is used to delete Mongo Atlas cluster and project resources on a daily basis or as needed.
 
 ![ci](https://github.com/conventional-changelog/standard-version/workflows/ci/badge.svg)
 [![version](https://img.shields.io/badge/version-1.x-yellow.svg)](https://semver.org)
