@@ -22,7 +22,6 @@ Summary: This github action is used to delete Mongo Atlas cluster and project re
 
 ## Features
 
-* check for all projects
 * delete all clusters from project list
 * added retry logic to make sure all clusters are deleted
 * delete all projects once clusters are deleted

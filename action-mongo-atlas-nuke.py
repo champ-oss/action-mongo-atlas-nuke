@@ -1,29 +1,26 @@
 #!/usr/bin/python3
 # usage: python action-mongo-atlas-nuke.py
-# export MONGODB_ATLAS_PRIVATE_KEY, MONGODB_ATLAS_PUBLIC_KEY as env variable
+# export MONGODB_ATLAS_PRIVATE_KEY, MONGODB_ATLAS_PUBLIC_KEY, MONGODB_PROJECT_ID_LIST as env variable
 #########################################################################################################
 # coding=utf-8
+from __future__ import annotations
+
 import os
 import requests
 import json
 from requests.auth import HTTPDigestAuth
 from retry import retry
-from typing import List
 
 
-def get_all_projects(public: str, private: str, url: str) -> List[str]:
-    project_url = url + "/groups"
-    response = requests.request("GET", project_url, auth=HTTPDigestAuth(public, private))
-    project_list = json.loads(response.content)
-    return [p['id'] for p in project_list['results']]
-
-
-def get_cluster_name(public: str, private: str, url: str, project_id: str) -> str:
-    cluster_url = url + "/groups/" + project_id + "/clusters"
-    response = requests.request("GET", cluster_url, auth=HTTPDigestAuth(public, private))
-    cluster_list = json.loads(response.content)
-    for cluster in cluster_list['results']:
-        return cluster['name']
+def get_cluster_name(public: str, private: str, url: str, project_id: str) -> str | None:
+    try:
+        cluster_url = url + "/groups/" + project_id + "/clusters"
+        response = requests.request("GET", cluster_url, auth=HTTPDigestAuth(public, private))
+        cluster_list = json.loads(response.content)
+        for cluster in cluster_list['results']:
+            return cluster['name']
+    except:
+        return None
 
 
 def delete_cluster(public: str, private: str, url: str, project_id: str, cluster_name: str) -> None:
@@ -51,8 +48,8 @@ def main():
     public_key = os.environ["MONGODB_ATLAS_PUBLIC_KEY"]
     private_key = os.environ["MONGODB_ATLAS_PRIVATE_KEY"]
 
-    # get all project ids in org
-    id_list = get_all_projects(public_key, private_key, base_url)
+    # load list into variable
+    id_list = json.loads(os.environ["MONGODB_PROJECT_ID_LIST"])
 
     # for each project id, get cluster name and delete
     for project_id in id_list:
