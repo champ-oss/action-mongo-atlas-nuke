@@ -41,6 +41,7 @@ def delete_project(public: str, private: str, url: str, project_id: str) -> None
     except Exception as error:
         print(error)
         raise
+    return None
 
 
 def main():
@@ -58,10 +59,13 @@ def main():
             print(f"deleting {cluster_name} cluster")
             delete_cluster(public_key, private_key, base_url, project_id, cluster_name)
 
-    # delete all projects with retry logic
+    # delete given projects with retry logic
     for project_id in id_list:
-        print(f"deleting {project_id} project")
-        delete_project(public_key, private_key, base_url, project_id)
+        try:
+            print(f"deleting {project_id} project")
+            delete_project(public_key, private_key, base_url, project_id)
+        except:
+            print(f"problem deleting {project_id} project, may not exist")
 
 
 main()
