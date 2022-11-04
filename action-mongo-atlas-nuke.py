@@ -1,15 +1,29 @@
 #!/usr/bin/python3
 # usage: python action-mongo-atlas-nuke.py
-# export MONGODB_ATLAS_PRIVATE_KEY, MONGODB_ATLAS_PUBLIC_KEY, MONGODB_PROJECT_ID_LIST as env variable
+# export MONGODB_ATLAS_PRIVATE_KEY, MONGODB_ATLAS_PUBLIC_KEY, PREFIX_PROJECT_INCLUDE as env variable
 #########################################################################################################
 # coding=utf-8
 from __future__ import annotations
 
 import os
+from typing import List
+
 import requests
 import json
 from requests.auth import HTTPDigestAuth
 from retry import retry
+
+
+def get_all_projects(public: str, private: str, url: str, prefix_project_include: str) -> List[str]:
+    project_url = url + "/groups"
+    response = requests.request("GET", project_url, auth=HTTPDigestAuth(public, private))
+    project_list = json.loads(response.content)
+    project_id_list = list()
+    for project in project_list['results']:
+        if project['name'].startswith(prefix_project_include):
+            project_id = project['id']
+            project_id_list.append(project_id)
+    return project_id_list
 
 
 def get_cluster_name(public: str, private: str, url: str, project_id: str) -> str | None:
@@ -48,9 +62,11 @@ def main():
     base_url = "https://cloud.mongodb.com/api/atlas/v1.0"
     public_key = os.environ["MONGODB_ATLAS_PUBLIC_KEY"]
     private_key = os.environ["MONGODB_ATLAS_PRIVATE_KEY"]
+    # prefix mongo atlas project that are available to delete
+    prefix_project_include = os.environ["PREFIX_PROJECT_INCLUDE"]
 
-    # load list into variable
-    id_list = json.loads(os.environ["MONGODB_PROJECT_ID_LIST"])
+    # get all project ids in org, include prefix of projects that will be part of delete
+    id_list = get_all_projects(public_key, private_key, base_url, prefix_project_include)
 
     # for each project id, get cluster name and delete
     for project_id in id_list:
