@@ -7,8 +7,8 @@ inputs:
   MONGODB_ATLAS_PUBLIC_KEY:
     description: 'mongo atlas public key'
     required: true
-  MONGODB_PROJECT_ID_LIST:
-    description: 'mongo project id list'
+  MONGODB_PROJECT_PREFIX_INCLUDE:
+    description: 'mongo project prefix to include in deletion'
     required: true
 runs:
   using: "composite"
@@ -25,6 +25,6 @@ runs:
       env:
         MONGODB_ATLAS_PRIVATE_KEY: ${{ inputs.MONGODB_ATLAS_PRIVATE_KEY }}
         MONGODB_ATLAS_PUBLIC_KEY: ${{ inputs.MONGODB_ATLAS_PUBLIC_KEY }}
-        MONGODB_PROJECT_ID_LIST: ${{ inputs.MONGODB_PROJECT_ID_LIST }}
+        MONGODB_PROJECT_PREFIX_INCLUDE: ${{ inputs.MONGODB_PROJECT_PREFIX_INCLUDE }}
       run: |
         python ${GITHUB_ACTION_PATH}/action-mongo-atlas-nuke.py
