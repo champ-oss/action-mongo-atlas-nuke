@@ -1,21 +1,29 @@
 #!/usr/bin/python3
 # usage: python action-mongo-atlas-nuke.py
-# export MONGODB_ATLAS_PRIVATE_KEY, MONGODB_ATLAS_PUBLIC_KEY as env variable
+# export MONGODB_ATLAS_PRIVATE_KEY, MONGODB_ATLAS_PUBLIC_KEY, MONGODB_PROJECT_PREFIX_INCLUDE as env variable
 #########################################################################################################
 # coding=utf-8
+from __future__ import annotations
+
 import os
+from typing import List
+
 import requests
 import json
 from requests.auth import HTTPDigestAuth
 from retry import retry
-from typing import List
 
 
-def get_all_projects(public: str, private: str, url: str) -> List[str]:
+def get_all_projects(public: str, private: str, url: str, project_prefix_include: str) -> List[str]:
     project_url = url + "/groups"
     response = requests.request("GET", project_url, auth=HTTPDigestAuth(public, private))
     project_list = json.loads(response.content)
-    return [p['id'] for p in project_list['results']]
+    project_id_list = list()
+    for project in project_list['results']:
+        if project['name'].startswith(project_prefix_include):
+            project_id = project['id']
+            project_id_list.append(project_id)
+    return project_id_list
 
 
 def get_cluster_name(public: str, private: str, url: str, project_id: str) -> str:
@@ -28,8 +36,7 @@ def get_cluster_name(public: str, private: str, url: str, project_id: str) -> st
 
 def delete_cluster(public: str, private: str, url: str, project_id: str, cluster_name: str) -> None:
     cluster_delete_url = url + "/groups/" + project_id + "/clusters/" + cluster_name
-    response = requests.request("DELETE", cluster_delete_url, auth=HTTPDigestAuth(public, private))
-    print(response)
+    requests.request("DELETE", cluster_delete_url, auth=HTTPDigestAuth(public, private))
 
 
 @retry(delay=15, tries=40)
@@ -44,15 +51,18 @@ def delete_project(public: str, private: str, url: str, project_id: str) -> None
     except Exception as error:
         print(error)
         raise
+    return None
 
 
 def main():
     base_url = "https://cloud.mongodb.com/api/atlas/v1.0"
     public_key = os.environ["MONGODB_ATLAS_PUBLIC_KEY"]
     private_key = os.environ["MONGODB_ATLAS_PRIVATE_KEY"]
+    # prefix mongo atlas project that are available to delete
+    project_prefix_include = os.environ["MONGODB_PROJECT_PREFIX_INCLUDE"]
 
-    # get all project ids in org
-    id_list = get_all_projects(public_key, private_key, base_url)
+    # get all project ids in org, include prefix of projects that will be part of delete
+    id_list = get_all_projects(public_key, private_key, base_url, project_prefix_include)
 
     # for each project id, get cluster name and delete
     for project_id in id_list:
@@ -61,7 +71,7 @@ def main():
             print(f"deleting {cluster_name} cluster")
             delete_cluster(public_key, private_key, base_url, project_id, cluster_name)
 
-    # delete all projects with retry logic
+    # delete given projects with retry logic
     for project_id in id_list:
         print(f"deleting {project_id} project")
         delete_project(public_key, private_key, base_url, project_id)

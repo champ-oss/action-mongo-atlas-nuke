@@ -16,4 +16,4 @@ jobs:
         with:
           MONGODB_ATLAS_PRIVATE_KEY: ${{ secrets.MONGODB_ATLAS_PRIVATE_KEY }}
           MONGODB_ATLAS_PUBLIC_KEY: ${{ secrets.MONGODB_ATLAS_PUBLIC_KEY }}
-
+          MONGODB_PROJECT_PREFIX_INCLUDE: 'terraform'
